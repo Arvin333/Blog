@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://arvin.xin/post/csrf/</loc>
+    <lastmod>2017-08-17T16:57:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://arvin.xin/post/post/</loc>
+    <lastmod>2017-08-16T21:17:30+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://arvin.xin/about/</loc>
+    <lastmod>2017-08-16T17:45:39+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://arvin.xin/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arvin.xin/post/</loc>
+    <lastmod>2017-08-17T16:57:27+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arvin.xin/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arvin.xin/</loc>
+    <lastmod>2017-08-17T16:57:27+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

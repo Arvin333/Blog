@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "build": "hugo  --theme=hugo-theme-cactus-plus --buildDrafts",
+    "dev": "hugo server --theme=hugo-theme-cactus-plus --buildDrafts",
+    "deploy": "sh deploy.sh"
+  }
+}
