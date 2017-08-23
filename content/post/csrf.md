@@ -2,6 +2,7 @@
 title: "浅谈对CSRF的认识，以及一些应对措施"
 date: 2017-08-17T16:57:27+08:00
 draft: true
+tag: "web安全"
 ---
 
 ### CSRF 
