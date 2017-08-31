@@ -19,14 +19,14 @@ CSRF（Cross Site Request Forgery, 跨站域请求伪造）的定义，相信大
 想要了解怎么应对CSRF，先来看看攻击者干些什么。
 
 ### 攻击者能干什么
-因为受同源策略限制，攻击者并不能拿到A站的任何信息（Cookies）和响应信息，他只能利用发送请求时，会带上cookies去校验登录信息或权限的特性，去修改用户的数据，来达到攻击目的。因此，一般用于获取信息而不涉及到修改信息的请求(Get)就不用担心会有CSRF危险了，重要的是能修改信息的请求。当然，如果你用Get去修改信息，那就需要考虑防范CSRF了。but这样做本身就违背了HTTP method设定的初衷，同时Get的攻击方式更为简单，一个Img标签加上JavaScript就能触发。所以不建议这么做
+因为受同源策略限制，攻击者并不能拿到A站的任何信息（Cookies）和响应信息，他只能利用发送请求时，会带上cookies去校验登录信息或权限的特性，去修改用户的数据，来达到攻击目的。因此，一般用于获取信息而不涉及到修改信息的请求(Get)就不用担心会有CSRF危险了，重要的是能修改信息的请求。当然，如果你用Get去修改信息，那就需要考虑防范CSRF了。but这样做本身就违背了HTTP method设定的初衷，同时Get的攻击方式更为简单，一个img标签加上JavaScript就能触发。所以不建议这么做
 
 ### CRSF预防措施
 正所谓兵来将挡，水来土掩。了解了攻击者利用的一些原理，就对应的可以找到一些对应措施
 
 1、在服务端验证HTTP的Referer字段。
 
-此方法成本较小，只需要在服务端拦截请求，判断Referer是否来自于同一域名，如果不是或者不存在CSRF的话，则认为有可能是CSRF攻击，直接过滤。但这种方法也有弊端，那就是当有些人会担心Referer会泄露个人信息时（毕竟像服务器发送了自己的来源地址）。这些人会尝试去关闭Referer。这样当这些用户发起请求时就不会带上Referer，这个请求就会被判成有可能的CSRF攻击，因为按照上述过滤规则，请求头中无Referer的有可能会是CSRF攻击。
+此方法成本较小，只需要在服务端拦截请求，判断Referer是否来自于同一域名，如果不是或者不存在CSRF的话，则认为有可能是CSRF攻击，直接过滤。但这种方法也有弊端，那就是当有些人会担心Referer会泄露个人信息时（毕竟向服务器发送了自己的来源地址）。这些人会尝试去关闭Referer(可以通过添加meta ```<meta name="referrer" content="no-referrer">``` 来控制。对于a标签，也可以通过添加属性(rel="noreferrer")来达到取消发送referer的目的，参考https://www.w3.org/TR/referrer-policy/#referrer-policies)。 这样当这些用户发起请求(包括a标签跳转，form表单提交以及Ajax)时就不会带上Referer，这个请求就会被判成有可能的CSRF攻击，因为按照上述过滤规则，请求头中无Referer的有可能会是CSRF攻击。
 
 2、在请求地址中添加 token 并验证
 
@@ -35,14 +35,13 @@ CSRF（Cross Site Request Forgery, 跨站域请求伪造）的定义，相信大
 答案就是token(令牌)，它由服务端通过一定算法生成，每当用户请求页面的时候，则向用户返回的页面中带上一个全新的token。下次用户在发送请求的时候，就带上该token与服务器的token进行对比。但这token要放在哪里呢？
 
 三种情况：
-1 对于Get请求，在Url后面动态加上token。 此方法也有一定约束，页面有很多链接，一个一个加太麻烦，就需要在document加载完以后，通过js来辅助完成了。但这个方法对于动态生成的内容，就无能为力了。
+1 对于a标签跳转，在Url后面动态加上token。 此方法也有一定约束，页面有很多链接，一个一个加太麻烦，就需要在document加载完以后，通过js来辅助完成了。但这个方法对于动态生成的内容，就无能为力了。
 
-2 Post请求 在form表带中加上
-<pre><code>< input type=”hidden” name=token value=”tokenvalue”/></code></pre>
+2 对于form表单 添加一个hidden input ```<input type=”hidden” name="token" value=”tokenvalue”/>```
     
-（查看PC淘宝的个人中心，其修改资料就是用的此方法）由于同源策略，攻击者是拿不到表单里的数据的。此方法也跟Get请求有同样的问题，那就是对于多链接和动态生成的内容，js批量加上token的办法就不行了，只能手动添加。
+（查看PC淘宝的个人中心，其修改资料就是用的此方法）由于同源策略，攻击者是拿不到表单里的数据的。此方法也跟a标签请求有同样的问题，那就是对于多链接和动态生成的内容，js批量加上token的办法就不行了，只能手动添加。
 
-3、对于Ajax请求，如果跨域，则默认不会带上A站的cookie。因此，从某些方面来说，是相对安全的。但是根据w3c对Ajax的一个属性的描述
+3、对于Ajax请求(即使存在跨域的情况，请求还是会发送出去，只是说浏览器会识别到来自不同域而阻止获取返回的信息)。则默认不会带上A站的cookie。因此，从某些方面来说，是相对安全的。但是根据w3c对Ajax的一个属性的描述
 
 >#### 4.6.4 [The withCredentials attribute](https://www.w3.org/TR/2014/WD-XMLHttpRequest-20140130/#the-withcredentials-attribute)
 
@@ -63,9 +62,15 @@ CSRF（Cross Site Request Forgery, 跨站域请求伪造）的定义，相信大
 
 4、个人觉得相对安全的做法就是既验证referer，同事也校验token。如涉及到更隐秘的操作，则需要通过验证码或者手动输入密码来做防范了。
 
+
 参考文章：
+
 https://www.w3.org/TR/2014/WD-XMLHttpRequest-20140130/#the-withcredentials-attribute
+
 https://www.ibm.com/developerworks/cn/web/1102_niugang_csrf/
+
 https://en.wikipedia.org/wiki/Cross-site_request_forgery
 
-第一次写Post，过程如此之多，小到markdown语法；大到发现问题、探索分析问题、查阅资料并自测验证。最后通篇检查，是否存在有问题的地方。整个过程虽然比较难，但这让自己对于CRSF有了更深刻的认识。在团队完成分享后不遗余力整理的一篇，相信以后会更好。
+https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-no-referrer
+
+https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Referrer-Policy
